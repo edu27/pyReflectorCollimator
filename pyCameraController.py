@@ -26,31 +26,38 @@ class CameraController:
         self.gamma = 100
         self.contrast = 100
 
-
-        self.vid = cv.VideoCapture(video_idx)
+        # Original is self.vid = cv.VideoCapture(video_idx)
+        # On Windows, the above will somewhat work, but adding cv.CAP_DSHOW seemed to allow UVC props to be read correctly. 
+        # Revert back to above for non-windows. cv.CAP_ANY can potentially be used however
+        # it tried to default to CAP_MSMF which did not pull the properties correctly.
+        self.vid = cv.VideoCapture(video_idx, cv.CAP_DSHOW)
+        #self.vid = cv.VideoCapture(-1)
         cap = self.vid
         #This check may or may not work since sometimes a camera is "opened" just not the right one and it will not display
         if not cap.isOpened():
-            print("Cannot open camera. Check cc = CameraController(3) in main.py and change 3 to maybe 0, 1, etc.")
+            print("Cannot open camera. Check cc = CameraController(%s) in main.py and change 1 to maybe 0, 2, 3, etc." %video_idx)
             
         oldfourcc = self.decode_fourcc(self.vid.get(cv.CAP_PROP_FOURCC))
         print("current codec {}".format(oldfourcc))
-        # On Windows, decoding not working. Display undecoded output just to see what it says. 
-        print("without decode {}".format(self.vid.get(cv.CAP_PROP_FOURCC)))
-        # MP4V also works if desired.  codec = cv.VideoWriter_fourcc(*"MP4V") 
+
         codec = cv.VideoWriter_fourcc(*"MJPG")
         res=self.vid.set(cv.CAP_PROP_FOURCC,codec)
         if res:
             print("codec is ",self.decode_fourcc(self.vid.get(cv.CAP_PROP_FOURCC)))
         else:
             print("error, codec is ",self.decode_fourcc(self.vid.get(cv.CAP_PROP_FOURCC)))
-
-        w=1280
-        h=720
-        fps=30
-        res1=cap.set(cv.CAP_PROP_FRAME_WIDTH,w)
-        res2=cap.set(cv.CAP_PROP_FRAME_HEIGHT,h)
-        res3=cap.set(cv.CAP_PROP_FPS,fps)
+        w=1920
+        h=1080
+        fps=15
+        cap.set(cv.CAP_PROP_FPS, 30.0)
+        cap.set(cv.CAP_PROP_FOURCC, cv.VideoWriter.fourcc('m','j','p','g'))
+        cap.set(cv.CAP_PROP_FOURCC, cv.VideoWriter.fourcc('M','J','P','G'))
+        cap.set(cv.CAP_PROP_FRAME_WIDTH, 1920)
+        cap.set(cv.CAP_PROP_FRAME_HEIGHT, 1080)
+        # res1=cap.set(cv.CAP_PROP_FRAME_WIDTH,w)
+        # res2=cap.set(cv.CAP_PROP_FRAME_HEIGHT,h)
+        # res3=cap.set(cv.CAP_PROP_FPS,fps)
+        res4=cap.set(cv.CAP_PROP_SETTINGS,1)
 
         self.fps = self.vid.get(cv.CAP_PROP_FPS)
         ret, frame = self.vid.read()
