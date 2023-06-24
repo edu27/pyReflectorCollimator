@@ -12,7 +12,9 @@ if __name__ == "__main__":
     #This could probably be automated or a user-select added.
     # Uncomment the next line to try to see what could be a valid index. 
     find_cameras()
-    cc = CameraController(1)
+    print ("Write the camera output PORT NUMBER and hit ENTER. It should be 1 if integrated webcam is present or 0, 2, 3, etc.")
+    camNum = int(input())
+    cc = CameraController(camNum)
     dpg.create_context()
     dpg.create_viewport(title='PyReflectorCollimator', width=1800, height=800)
     dpg.setup_dearpygui()
